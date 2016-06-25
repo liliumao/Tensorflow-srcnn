@@ -91,8 +91,10 @@ def run_benchmark():
     train_op2 = op2.apply_gradients(zip(grads2, bias_parameters), global_step = global_step)
     train_op = tf.group(train_op1, train_op2)
 
+    saver = tf.train.Saver(weight_parameters + bias_parameters)
+
     init = tf.initialize_all_variables().run()
-    
+
     train_data, train_label = read_data('train.h5')
     train_data = np.transpose(train_data, (0,2,3,1))
     train_label = np.transpose(train_label, (0,2,3,1))
@@ -109,9 +111,10 @@ def run_benchmark():
       duration = time.time() - start_time
       # if i > num_steps_burn_in:
       if not i % num_steps_burn_in:
+        saver.save(sess, 'my-model', global_step=i)
         print ('%s: step %d, duration = %.3f' %
                (datetime.now(), i, duration))
-        print (step)
+
 
 def main(_):
   run_benchmark()
